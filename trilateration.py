@@ -8,10 +8,19 @@ class Trilateration:
     in the form of a system of nonlinear equations
     using global optimization methods"""
 
-    def __init__(self, base_coord :dict) -> None:
+    __bases_coord: dict
+    __base_dist: dict
+
+    def __init__(self, base_coord: dict) -> None:
         self.__bases_coord = base_coord
     
-    def solvelm(self, base_dist :dict, guess :numpy.array) -> numpy.array:
+    def set_bases_coord(self, base_coord: dict) -> None:
+        self.__bases_coord = base_coord
+
+    def get_bases_coord(self, base_coord: dict) -> dict:
+        return self.__bases_coord
+
+    def solvelm(self, base_dist :dict, guess: numpy.array) -> numpy.array:
         """ Return a numpy.array [x, y, z]
 
         Solves the system of nonlinear equations in a least squares sense 
@@ -21,7 +30,7 @@ class Trilateration:
         # return scipy.optimize.root(self.__fun, guess, method="lm").x
         return scipy.optimize.root(self.__fun, guess, jac=self.__jac, method="lm").x
 
-    def __jac(self, v)-> function:
+    def __jac(self, v):
         """ Return function
 
         Creation of the Jacobian matrix
@@ -32,7 +41,7 @@ class Trilateration:
                 f[i][j] = 2*(v[j]-self.__bases_coord.get(base)[j])
         return f
 
-    def __fun(self, v) -> function:
+    def __fun(self, v):
         """ Return function
 
         Creation of a system of nonlinear equations        
