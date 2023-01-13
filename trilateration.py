@@ -22,6 +22,10 @@ class Trilateration:
         return scipy.optimize.root(self.__fun, guess, jac=self.__jac, method="lm").x
 
     def __jac(self, v)-> function:
+        """ Return function
+
+        Creation of the Jacobian matrix
+        """
         f = numpy.zeros([len(self.__base_dist.keys()), 3])
         for i, base in enumerate(self.__base_dist):
             for j in range(len(self.__bases_coord.values()[0])):
@@ -29,6 +33,10 @@ class Trilateration:
         return f
 
     def __fun(self, v) -> function:
+        """ Return function
+
+        Creation of a system of nonlinear equations        
+        """
         f = numpy.zeros([len(self.__base_dist)])
         for i, base in enumerate(self.__base_dist):
             f[i] = math.pow(v[0]-self.__bases_coord.get(base)[0], 2) \
