@@ -36,7 +36,7 @@ class Trilateration:
         """
         self.__base_dist = base_dist
         # return scipy.optimize.root(self.__fun, guess, method="lm").x
-        return scipy.optimize.root(self.__fun, guess, method="lm")
+        return scipy.optimize.root(self.__fun, guess, jac=self.__jac, method="lm")
 
     def slovetsls(self, base_dist :dict, guess: numpy.array):
         """ Return numpy.array [x, y, z] and int
