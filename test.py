@@ -13,10 +13,10 @@ er_range = [-0.5, 0.5] # error range
 bases_coord = { "1": [0, 0, 0],
                 "2": [2, 0, 0],
                 "3": [0, 2, 0],
-                "4": [-2, -2, 0.1],
-                "5": [2, 2, 0,1],
-                "6": [2, -2, 0.1],
-                "7": [-2, 2, 0.1]
+                "4": [-2, -2, 0.2],
+                "5": [2, 2, 0.2],
+                "6": [2, -2, 0],
+                "7": [-2, 2, 0.2]
 }
 
 def get_th_points(fx: list, fy: list, fz: list) -> np.array:
@@ -29,7 +29,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     for i, v in enumerate(th):
         result[0][i] = math.atanh(math.cos(v))
         result[1][i] = v
-        result[2][i] = math.cos(v)
+        result[2][i] = abs(math.cos(v))
     return result
 
 def get_th_dist(coord: dict, theor: np.array) -> np.array:
