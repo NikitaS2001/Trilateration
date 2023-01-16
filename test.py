@@ -10,10 +10,13 @@ field_z = [0., 5] # field dimensions z
 count_points = 300 # amount of points
 er_range = [-0.5, 0.5] # error range
 
-bases_coord = { '1':[-2, -2, 0.1],
-                '2':[2, -2, 0],
-                '3':[2, 2, 0.1],
-                '4':[-2, 2, 0]
+bases_coord = { "1": [0, 0, 0],
+                "2": [2, 0, 0],
+                "3": [0, 2, 0],
+                "4": [-2, -2, 0.1],
+                "5": [2, 2, 0,1],
+                "6": [2, -2, 0.1],
+                "7": [-2, 2, 0.1]
 }
 
 def get_th_points(fx: list, fy: list, fz: list) -> np.array:
@@ -61,7 +64,7 @@ if __name__ == "__main__":
     for j in range(count_points):
         tstart = time.time()
 
-        sol = tril.solvelm(th_dist[j], x0)
+        sol = tril.solve(th_dist[j], x0, method="lm")
         x0 = sol.x
         cl[0][j] = sol.x[0]
         cl[1][j] = sol.x[1]

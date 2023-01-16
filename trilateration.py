@@ -10,7 +10,7 @@ class Trilateration:
 
     __bases_coord: dict
     __base_dist: dict
-    __tolerance: float = 0.5e-3 # tolerance for termination
+    __tolerance: float = 5e-4 # tolerance for termination
     __iterMax: int = 20 # maximum number of iterations
 
     def __init__(self, base_coord: dict) -> None:
@@ -28,25 +28,30 @@ class Trilateration:
     def get_iterMax(self) -> int:
         return self.__iterMax
 
-    def solvelm(self, base_dist :dict, guess: numpy.array) -> numpy.array:
-        """ Return a numpy.array [x, y, z]
+    def solve(self, base_dist :dict, guess :numpy.array, method="lm") -> scipy.optimize.OptimizeResult:
+        if method == "lm":
+            return self.__solvelm(base_dist, guess)
+        elif method == "tsls":
+            return self.__slovetsls(base_dist, guess)
+
+    def __solvelm(self, base_dist :dict, guess: numpy.array) -> scipy.optimize.OptimizeResult:
+        """ Return a OptimizeResult
 
         Solves the system of non-linear equations in a least squares sense 
         using a modification of the Levenberg-Marquardt algorithm
         """
         self.__base_dist = base_dist
-        # return scipy.optimize.root(self.__fun, guess, method="lm").x
         return scipy.optimize.root(self.__fun, guess, jac=self.__jac, method="lm")
 
-    def slovetsls(self, base_dist :dict, guess: numpy.array):
-        """ Return numpy.array [x, y, z] and int
+    def __slovetsls(self, base_dist :dict, guess: numpy.array) -> scipy.optimize.OptimizeResult:
+        """ Return scipy.optimize.OptimizeResult
         
         Solve a non-linear system using the TSLS+WD (two-step least squares) method
         """
         self.__base_dist = base_dist
         for iter in range(self.__iterMax):
             jac, fun = self.__jac(guess), self.__fun(guess)
-            if math.sqrt(numpy.dot(fun, fun) / len(guess)) < self.__tolerance:
+            if math.sqrt(numpy.matmul(fun, fun) / len(guess)) < self.__tolerance:
                 return guess, iter
             dguess = numpy.linalg.solve(jac, fun)
             guess = guess - dguess
