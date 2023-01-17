@@ -51,7 +51,6 @@ def dist(bases_coord: list, x: float, y: float, z: float = 0) -> dict:
                     + math.pow(z-bases_coord[2], 2))
 
 if __name__ == "__main__":
-    #print(bases_coord)
     th = get_th_points(field_x, field_y, field_z)
     th_dist = get_th_dist(bases_coord, th)  
 
@@ -59,7 +58,7 @@ if __name__ == "__main__":
 
     tril = Trilateration(bases_coord)
 
-    x0 = np.zeros([3])
+    x0 = np.zeros([len(list(bases_coord.values())[0])])
 
     for j in range(count_points):
         tstart = time.time()

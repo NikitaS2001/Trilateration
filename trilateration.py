@@ -29,32 +29,47 @@ class Trilateration:
         return self.__iterMax
 
     def solve(self, base_dist :dict, guess :numpy.array, method="lm") -> scipy.optimize.OptimizeResult:
-        if method == "lm":
-            return self.__solvelm(base_dist, guess)
-        elif method == "tsls":
-            return self.__slovetsls(base_dist, guess)
 
-    def __solvelm(self, base_dist :dict, guess: numpy.array) -> scipy.optimize.OptimizeResult:
+        self.__base_dist = base_dist
+
+        if method == "lm":
+            return self.__solvelm(guess)
+        elif method == "anderson":
+            return self.__solveanderson(guess)
+        elif method == "tsls":
+            return self.__solvetsls(guess)
+
+    def __solvelm(self, guess: numpy.array) -> scipy.optimize.OptimizeResult:
         """ Return a OptimizeResult
 
         Solves the system of non-linear equations in a least squares sense 
         using a modification of the Levenberg-Marquardt algorithm
         """
-        self.__base_dist = base_dist
-        return scipy.optimize.root(self.__fun, guess, jac=self.__jac, method="lm")
+        return scipy.optimize.root(self.__fun,
+                                    guess,
+                                    jac=self.__jac,
+                                    method="lm",
+                                    options={"col_deriv" :False,
+                                             "xtol" :self.__tolerance,
+                                             "maxiter" :self.__iterMax}
+                                    
+                                    )
 
-    def __slovetsls(self, base_dist :dict, guess: numpy.array) -> scipy.optimize.OptimizeResult:
+    def __solvetsls(self, guess: numpy.array) -> scipy.optimize.OptimizeResult:
         """ Return scipy.optimize.OptimizeResult
         
         Solve a non-linear system using the TSLS+WD (two-step least squares) method
         """
-        self.__base_dist = base_dist
+        
         for iter in range(self.__iterMax):
             jac, fun = self.__jac(guess), self.__fun(guess)
             if math.sqrt(numpy.matmul(fun, fun) / len(guess)) < self.__tolerance:
                 return guess, iter
             dguess = numpy.linalg.solve(jac, fun)
             guess = guess - dguess
+
+    def __solveanderson(self, guess: numpy.array) -> scipy.optimize.OptimizeResult:
+        return scipy.optimize.anderson(self.__fun, guess)
 
     def __jac(self, v):
         """ Return function
@@ -72,7 +87,8 @@ class Trilateration:
 
         Creation of a system of nonlinear equations        
         """
-        f = numpy.zeros([len(self.__base_dist)])
+        # f = numpy.zeros([len(self.__base_dist)])
+        f = numpy.zeros(7)
         for i, base in enumerate(list(self.__base_dist.keys())):
             for j in range(len(list(self.__bases_coord.values())[0])):
                 f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
