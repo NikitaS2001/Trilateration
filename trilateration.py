@@ -52,7 +52,6 @@ class Trilateration:
                                     options={"col_deriv" :False,
                                              "xtol" :self.__tolerance,
                                              "maxiter" :self.__iterMax}
-                                    
                                     )
 
     def __solvetsls(self, guess: numpy.array) -> scipy.optimize.OptimizeResult:
@@ -87,8 +86,7 @@ class Trilateration:
 
         Creation of a system of nonlinear equations        
         """
-        # f = numpy.zeros([len(self.__base_dist)])
-        f = numpy.zeros(7)
+        f = numpy.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
             for j in range(len(list(self.__bases_coord.values())[0])):
                 f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
