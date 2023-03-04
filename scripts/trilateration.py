@@ -1,6 +1,23 @@
-import math
-import numpy as np
+#!/usr/bin/ python3
+
 import scipy
+import math
+import rospy
+from geometry_msgs.msg import Point32
+import numpy as np
+
+# from trilateration import Trilateration
+from trilateration.msg import BeaconDataArra
+from trilateration.msg import Point3D
+
+bases_coord = {"1": [0, 0, 0],
+               "2": [2, 0, 0],
+               "3": [0, 2, 0],
+               "4": [-2, -2, 0.2],
+               "5": [2, 2, 0.2],
+               "6": [2, -2, 0],
+               "7": [-2, 2, 0.2]
+               }
 
 
 class Trilateration:
@@ -14,15 +31,9 @@ class Trilateration:
     __tolerance: float = 5e-4  # tolerance for termination
     __iterMax: int = 20  # maximum number of iterations
     # previous solution (default value [0, 0, 0])
-<<<<<<< HEAD
     __prev_sol: np.ndarray
 
     def __init__(self, base_coord: dict, prev_sol: np.ndarray = np.zeros([3])) -> None:
-=======
-    __prev_sol: numpy.ndarray
-
-    def __init__(self, base_coord: dict, prev_sol: numpy.ndarray = numpy.zeros([3])) -> None:
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
         self.__bases_coord = base_coord
         self.__prev_sol = prev_sol
 
@@ -44,7 +55,6 @@ class Trilateration:
 
         if method == "lm":
             sol = self.__solvelm()
-<<<<<<< HEAD
             self.__prev_sol = np.array(sol.x)
             return sol
         elif method == "anderson":
@@ -54,17 +64,6 @@ class Trilateration:
         elif method == "tsls":
             sol = self.__solvetsls()
             self.__prev_sol = np.array(sol.x)
-=======
-            self.__prev_sol = numpy.array(sol.x)
-            return sol
-        elif method == "anderson":
-            sol = self.__solveanderson()
-            self.__prev_sol = numpy.array(sol.x)
-            return sol
-        elif method == "tsls":
-            sol = self.__solvetsls()
-            self.__prev_sol = numpy.array(sol.x)
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
             return sol
 
     def __solvelm(self):
@@ -103,11 +102,7 @@ class Trilateration:
         bases_coord
         Creation of the Jacobian matrix
         """
-<<<<<<< HEAD
         f = np.zeros([len(self.__base_dist.keys()), len(
-=======
-        f = numpy.zeros([len(self.__base_dist.keys()), len(
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
             list(self.__bases_coord.values())[0])])
         for i, base in enumerate(list(self.__base_dist.keys())):
             for j in range(len(list(self.__bases_coord.values())[0])):
@@ -125,3 +120,35 @@ class Trilateration:
                 f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
+
+
+def callback(data):
+    global pub, tril
+    distances = dict()
+    for beacon in data.beacons:
+        distances[beacon.id] = beacon.dist
+
+    # trilateration solution
+    sol = tril.solve(distances, method="lm")
+
+    msg = Point32()
+    msg.x = float(sol.x[0])
+    msg.y = float(sol.x[1])
+    msg.z = float(sol.x[2])
+    pub.publish(msg)
+
+
+def main():
+    tril = Trilateration(bases_coord, x0)
+
+    # setting the starting position
+    x0 = np.zeros([len(list(bases_coord.values())[0])])
+
+    pub = rospy.Publisher('Point3D', Point3D, queue_size=10)
+    rospy.init_node('trilateration', anonymous=True)
+    rospy.Subscriber("BeaconData", BeaconDataArra, callback)
+    rospy.spin()
+
+
+if __name__ == "__main__":
+    main()
