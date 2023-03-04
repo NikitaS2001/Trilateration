@@ -1,18 +1,12 @@
 #!/usr/bin/ python3
 
-<<<<<<< HEAD
+import scipy
 import math
-=======
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
 import rospy
 from geometry_msgs.msg import Point32
 import numpy as np
 
-<<<<<<< HEAD
 # from trilateration import Trilateration
-=======
-from trilateration import Trilateration
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
 from trilateration.msg import BeaconDataArra
 from trilateration.msg import Point3D
 
@@ -25,7 +19,7 @@ bases_coord = {"1": [0, 0, 0],
                "7": [-2, 2, 0.2]
                }
 
-<<<<<<< HEAD
+
 class Trilateration:
 
     """Solution of the trilateration problem
@@ -127,8 +121,6 @@ class Trilateration:
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
 
-=======
->>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
 
 def callback(data):
     global pub, tril
