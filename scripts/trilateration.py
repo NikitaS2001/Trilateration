@@ -1,5 +1,5 @@
 import math
-import numpy
+import numpy as np
 import scipy
 
 
@@ -14,9 +14,15 @@ class Trilateration:
     __tolerance: float = 5e-4  # tolerance for termination
     __iterMax: int = 20  # maximum number of iterations
     # previous solution (default value [0, 0, 0])
+<<<<<<< HEAD
+    __prev_sol: np.ndarray
+
+    def __init__(self, base_coord: dict, prev_sol: np.ndarray = np.zeros([3])) -> None:
+=======
     __prev_sol: numpy.ndarray
 
     def __init__(self, base_coord: dict, prev_sol: numpy.ndarray = numpy.zeros([3])) -> None:
+>>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
         self.__bases_coord = base_coord
         self.__prev_sol = prev_sol
 
@@ -38,6 +44,17 @@ class Trilateration:
 
         if method == "lm":
             sol = self.__solvelm()
+<<<<<<< HEAD
+            self.__prev_sol = np.array(sol.x)
+            return sol
+        elif method == "anderson":
+            sol = self.__solveanderson()
+            self.__prev_sol = np.array(sol.x)
+            return sol
+        elif method == "tsls":
+            sol = self.__solvetsls()
+            self.__prev_sol = np.array(sol.x)
+=======
             self.__prev_sol = numpy.array(sol.x)
             return sol
         elif method == "anderson":
@@ -47,6 +64,7 @@ class Trilateration:
         elif method == "tsls":
             sol = self.__solvetsls()
             self.__prev_sol = numpy.array(sol.x)
+>>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
             return sol
 
     def __solvelm(self):
@@ -72,9 +90,9 @@ class Trilateration:
         guess = self.__prev_sol
         for iter in range(self.__iterMax):
             jac, fun = self.__jac(guess), self.__fun(guess)
-            if math.sqrt(numpy.matmul(fun, fun) / len(guess)) < self.__tolerance:
+            if math.sqrt(np.matmul(fun, fun) / len(guess)) < self.__tolerance:
                 return guess, iter
-            dguess = numpy.linalg.solve(jac, fun)
+            dguess = np.linalg.solve(jac, fun)
             guess = guess - dguess
 
     def __solveanderson(self):
@@ -85,7 +103,11 @@ class Trilateration:
         bases_coord
         Creation of the Jacobian matrix
         """
+<<<<<<< HEAD
+        f = np.zeros([len(self.__base_dist.keys()), len(
+=======
         f = numpy.zeros([len(self.__base_dist.keys()), len(
+>>>>>>> daef7389d09b0cffee5f758d5620788ea9ea1460
             list(self.__bases_coord.values())[0])])
         for i, base in enumerate(list(self.__base_dist.keys())):
             for j in range(len(list(self.__bases_coord.values())[0])):
@@ -97,7 +119,7 @@ class Trilateration:
 
         Creation of a system of nonlinear equations        
         """
-        f = numpy.zeros([len(self.__base_dist)])
+        f = np.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
             for j in range(len(list(self.__bases_coord.values())[0])):
                 f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
