@@ -6,8 +6,7 @@ import rospy
 from geometry_msgs.msg import Point32
 import numpy as np
 
-# from trilateration import Trilateration
-from trilateration.msg import BeaconDataArra
+from trilateration.msg import BeaconDataArray
 from trilateration.msg import Point3D
 
 bases_coord = {"1": [0, 0, 0],
