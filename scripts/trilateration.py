@@ -3,12 +3,10 @@
 import scipy
 import math
 import rospy
-from geometry_msgs.msg import Point32
 import numpy as np
 
-from std_msgs.msg import Int16
+from geometry_msgs.msg import Point32
 from trilateration.msg import BeaconDataArray
-from trilateration.msg import Point3D
 
 bases_coord = {"1": [0, 0, 0],
                "2": [2, 0, 0],
@@ -144,9 +142,9 @@ def main():
     # setting the starting position
     x0 = np.zeros([len(list(bases_coord.values())[0])])
 
-    pub = rospy.Publisher('Point3D', Point3D, queue_size=10)
+    pub = rospy.Publisher('Point3D', Point32, queue_size=10)
     rospy.init_node('trilateration', anonymous=True)
-    rospy.Subscriber("BeaconData", BeaconDataArra, callback)
+    rospy.Subscriber("BeaconData", BeaconDataArray, callback)
     rospy.spin()
 
 

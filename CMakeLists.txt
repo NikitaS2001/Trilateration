@@ -52,7 +52,6 @@ add_message_files(
   FILES
   BeaconData.msg
   BeaconDataArray.msg
-  Point3D.msg
 )
 
 ## Generate services in the 'srv' folder
