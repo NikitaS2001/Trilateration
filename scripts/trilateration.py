@@ -137,10 +137,10 @@ def callback(data):
 
 
 def main():
-    tril = Trilateration(bases_coord, x0)
-
     # setting the starting position
     x0 = np.zeros([len(list(bases_coord.values())[0])])
+
+    tril = Trilateration(bases_coord, x0)
 
     pub = rospy.Publisher('Point3D', Point32, queue_size=10)
     rospy.init_node('trilateration', anonymous=True)
