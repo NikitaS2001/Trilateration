@@ -6,7 +6,7 @@ import rospy
 import numpy as np
 
 from geometry_msgs.msg import Point32
-from trilateration.msg import BeaconDataArray
+from dwm1000_msgs.msg import BeaconDataArray
 
 bases_coord = {"1": [0, 0, 0],
                "2": [2, 0, 0],
