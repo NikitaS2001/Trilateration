@@ -1,4 +1,4 @@
-#!/usr/bin/ python3
+#!/usr/bin/python3
 
 import scipy
 import math
@@ -6,6 +6,7 @@ import rospy
 from geometry_msgs.msg import Point32
 import numpy as np
 
+from std_msgs.msg import Int16
 from trilateration.msg import BeaconDataArray
 from trilateration.msg import Point3D
 
