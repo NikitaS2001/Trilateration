@@ -129,6 +129,8 @@ def callback(data):
     # trilateration solution
     sol = tril.solve(distances, method="lm")
 
+    rospy.loginfo(sol)
+    
     msg = Point32()
     msg.x = float(sol.x[0])
     msg.y = float(sol.x[1])
