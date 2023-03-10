@@ -142,9 +142,9 @@ def main():
 
     tril = Trilateration(bases_coord, x0)
 
-    pub = rospy.Publisher('Point3D', Point32, queue_size=10)
-    rospy.init_node('trilateration', anonymous=True)
-    rospy.Subscriber("BeaconData", BeaconDataArray, callback)
+    pub = rospy.Publisher('dwm1000/point3D', Point32, queue_size=10)
+    rospy.init_node('dwm1000/trilateration', anonymous=True)
+    rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.spin()
 
 
