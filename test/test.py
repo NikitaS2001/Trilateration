@@ -5,16 +5,16 @@ import rospy
 from dwm1000_msgs.msg import BeaconDataArray
 from dwm1000_msgs.msg import BeaconData
 
-field_x = [-5., 5.]  # field dimensions x
-field_y = [-5., 5.]  # field dimensions y
-field_z = [0., 5]  # field dimensions z
+field_x = [-3., 3.]  # field dimensions x
+field_y = [-3., 3.]  # field dimensions y
+field_z = [0., 3]  # field dimensions z
 count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
-bases_coord = {"0": [0, 0, 0],
-               "1": [2, 0, 0],
-               "2": [0, 2, 0],
-               "3": [2, 2, 0.2],
+bases_coord = {0: [0, 0, 0],
+               1: [2, 0, 0],
+               2: [0, 2, 0],
+               3: [2, 2, 0.2],
                }
 
 
@@ -26,7 +26,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     result = np.zeros([3, count_points])
     th = np.linspace(fx[0], fx[1], count_points)
     for i, v in enumerate(th):
-        result[0][i] = math.cos(v)
+        result[0][i] = 0  # math.cos(v)
         result[1][i] = 0
         result[2][i] = 0  # abs(math.cos(v))
     return result
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     pub = rospy.Publisher("dwm1000/beacon_data",
                           BeaconDataArray, queue_size=10)
     rospy.init_node('dwm1000_test', anonymous=True)
-    rate = rospy.Rate(1)
+    rate = rospy.Rate(60)
 
     j = 0
 
@@ -76,6 +76,6 @@ if __name__ == "__main__":
         pub_msg.beacons = list_msg
         pub.publish(pub_msg)
         list_msg.clear()
-        j+=1
-        j%=count_points
+        j += 1
+        j %= count_points
         rate.sleep()

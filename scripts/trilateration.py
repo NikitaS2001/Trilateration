@@ -129,9 +129,9 @@ def callback(data):
     # rospy.loginfo(sol)
 
     msg = Point32()
-    msg.x = float(sol.x[0])
-    msg.y = float(sol.x[1])
-    msg.z = float(sol.x[2])
+    msg.x = round(float(sol.x[0]), 4)
+    msg.y = round(float(sol.x[1]), 4)
+    msg.z = round(float(sol.x[2]), 4)
     pub.publish(msg)
 
 
