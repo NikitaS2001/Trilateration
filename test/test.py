@@ -61,7 +61,9 @@ if __name__ == "__main__":
     rospy.init_node('dwm1000_test', anonymous=True)
     rate = rospy.Rate(1)
 
-    for j in range(count_points):
+    j = 0
+
+    while not rospy.is_shutdown():
         pub_msg = BeaconDataArray()
         list_msg = list()
 
@@ -74,4 +76,6 @@ if __name__ == "__main__":
         pub_msg.beacons = list_msg
         pub.publish(pub_msg)
         list_msg.clear()
+        j+=1
+        j%=count_points
         rate.sleep()
