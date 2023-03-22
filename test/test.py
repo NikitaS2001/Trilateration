@@ -8,7 +8,7 @@ from dwm1000_msgs.msg import BeaconData
 field_x = [-5., 5.]  # field dimensions x
 field_y = [-5., 5.]  # field dimensions y
 field_z = [0., 5]  # field dimensions z
-count_points = 30  # amount of points
+count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
 bases_coord = {"0": [0, 0, 0],
@@ -26,9 +26,9 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     result = np.zeros([3, count_points])
     th = np.linspace(fx[0], fx[1], count_points)
     for i, v in enumerate(th):
-        result[0][i] = math.atanh(math.cos(v))
-        result[1][i] = v
-        result[2][i] = abs(math.cos(v))
+        result[0][i] = math.cos(v)
+        result[1][i] = 0
+        result[2][i] = 0  # abs(math.cos(v))
     return result
 
 
@@ -74,6 +74,4 @@ if __name__ == "__main__":
         pub_msg.beacons = list_msg
         pub.publish(pub_msg)
         list_msg.clear()
-
-        # print(th_dist[j])
         rate.sleep()

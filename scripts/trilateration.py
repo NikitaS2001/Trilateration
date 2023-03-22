@@ -9,10 +9,10 @@ import numpy as np
 from geometry_msgs.msg import Point32
 from dwm1000_msgs.msg import BeaconDataArray
 
-bases_coord = {"0": [0, 0, 0],
-               "1": [2, 0, 0],
-               "2": [0, 2, 0],
-               "3": [2, 2, 0.2],
+bases_coord = {0: [0, 0, 0],
+               1: [2, 0, 0],
+               2: [0, 2, 0],
+               3: [2, 2, 0.2],
                }
 
 
@@ -112,9 +112,8 @@ class Trilateration:
         """
         f = np.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
-            # for j in range(len(list(self.__bases_coord.values())[0])):
-            for j in range(2):
-                f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
+            for j in range(len(list(self.__bases_coord.values())[0])):
+                f[i] += math.pow(v[j]-(self.__bases_coord.get(base)[j]), 2)
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
 
@@ -127,7 +126,6 @@ def callback(data):
 
     # trilateration solution
     sol = tril.solve(distances, method="lm")
-    print(sol)
     # rospy.loginfo(sol)
 
     msg = Point32()
@@ -138,10 +136,9 @@ def callback(data):
 
 
 def main():
-    global tril
+    global tril, pub
     # setting the starting position
     x0 = np.zeros([len(list(bases_coord.values())[0])])
-
     tril = Trilateration(bases_coord, x0)
 
     pub = rospy.Publisher("dwm1000/point3D", Point32, queue_size=10)
