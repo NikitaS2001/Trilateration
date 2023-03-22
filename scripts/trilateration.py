@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import scipy
+from scipy.optimize import root
 import math
 import rospy
 import numpy as np
@@ -8,13 +9,10 @@ import numpy as np
 from geometry_msgs.msg import Point32
 from dwm1000_msgs.msg import BeaconDataArray
 
-bases_coord = {"1": [0, 0, 0],
-               "2": [2, 0, 0],
-               "3": [0, 2, 0],
-               "4": [-2, -2, 0.2],
-               "5": [2, 2, 0.2],
-               "6": [2, -2, 0],
-               "7": [-2, 2, 0.2]
+bases_coord = {"0": [0, 0, 0],
+               "1": [2, 0, 0],
+               "2": [0, 2, 0],
+               "3": [2, 2, 0.2],
                }
 
 
@@ -70,14 +68,14 @@ class Trilateration:
         Solves the system of non-linear equations in a least squares sense 
         using a modification of the Levenberg-Marquardt algorithm
         """
-        return scipy.optimize.root(self.__fun,
-                                   self.__prev_sol,
-                                   jac=self.__jac,
-                                   method="lm",
-                                   options={"col_deriv": False,
-                                            "xtol": self.__tolerance,
-                                            "maxiter": self.__iterMax}
-                                   )
+        return root(self.__fun,
+                            self.__prev_sol,
+                            jac=self.__jac,
+                            method="lm",
+                            options={"col_deriv": False,
+                                    "xtol": self.__tolerance,
+                                    "maxiter": self.__iterMax}
+                            )
 
     def __solvetsls(self):
         """ Return scipy.optimize.OptimizeResult
@@ -114,7 +112,8 @@ class Trilateration:
         """
         f = np.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
-            for j in range(len(list(self.__bases_coord.values())[0])):
+            # for j in range(len(list(self.__bases_coord.values())[0])):
+            for j in range(2):
                 f[i] += math.pow(v[j]-self.__bases_coord.get(base)[j], 2)
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
@@ -128,8 +127,8 @@ def callback(data):
 
     # trilateration solution
     sol = tril.solve(distances, method="lm")
-
-    rospy.loginfo(sol)
+    print(sol)
+    # rospy.loginfo(sol)
     
     msg = Point32()
     msg.x = float(sol.x[0])
@@ -139,13 +138,14 @@ def callback(data):
 
 
 def main():
+    global tril
     # setting the starting position
     x0 = np.zeros([len(list(bases_coord.values())[0])])
 
     tril = Trilateration(bases_coord, x0)
 
-    pub = rospy.Publisher('dwm1000/point3D', Point32, queue_size=10)
-    rospy.init_node('dwm1000/trilateration', anonymous=True)
+    pub = rospy.Publisher("dwm1000/point3D", Point32, queue_size=10)
+    rospy.init_node("trilateration", anonymous=True)
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.spin()
 

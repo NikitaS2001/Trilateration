@@ -10,13 +10,10 @@ field_z = [0., 5] # field dimensions z
 count_points = 300 # amount of points
 er_range = [-0.5, 0.5] # error range
 
-bases_coord = { "1": [0, 0, 0],
-                "2": [2, 0, 0],
-                "3": [0, 2, 0],
-                "4": [-2, -2, 0.2],
-                "5": [2, 2, 0.2],
-                "6": [2, -2, 0],
-                "7": [-2, 2, 0.2]
+bases_coord = { "0": [0, 0, 0],
+                "1": [2, 0, 0],
+                "2": [0, 2, 0],
+                "3": [2, 2, 0.2],
 }
 
 def get_th_points(fx: list, fy: list, fz: list) -> np.array:
