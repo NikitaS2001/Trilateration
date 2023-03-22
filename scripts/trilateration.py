@@ -69,13 +69,13 @@ class Trilateration:
         using a modification of the Levenberg-Marquardt algorithm
         """
         return root(self.__fun,
-                            self.__prev_sol,
-                            jac=self.__jac,
-                            method="lm",
-                            options={"col_deriv": False,
-                                    "xtol": self.__tolerance,
-                                    "maxiter": self.__iterMax}
-                            )
+                    self.__prev_sol,
+                    jac=self.__jac,
+                    method="lm",
+                    options={"col_deriv": False,
+                             "xtol": self.__tolerance,
+                             "maxiter": self.__iterMax}
+                    )
 
     def __solvetsls(self):
         """ Return scipy.optimize.OptimizeResult
@@ -129,7 +129,7 @@ def callback(data):
     sol = tril.solve(distances, method="lm")
     print(sol)
     # rospy.loginfo(sol)
-    
+
     msg = Point32()
     msg.x = float(sol.x[0])
     msg.y = float(sol.x[1])
