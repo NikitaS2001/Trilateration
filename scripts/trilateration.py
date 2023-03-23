@@ -10,10 +10,16 @@ from geometry_msgs.msg import Point32
 from dwm1000_msgs.msg import BeaconDataArray
 
 bases_coord = {0: [0, 0, 0],
-               1: [2, 0, 0],
-               2: [0, 2, 0],
-               3: [2, 2, 0.2],
+               1: [1.45, 0, 0],
+               2: [0, 1.45, 0],
+               3: [1.45, 1.45, 0.28]
                }
+
+offset = {0: -0.3,
+          1: -0.3,
+          2: -0.3,
+          3: -0.3
+          }
 
 
 class Trilateration:
@@ -118,20 +124,39 @@ class Trilateration:
         return f
 
 
+def correct_dist(distances: dict, offset: dict):
+    """ Return dict
+
+    adding offset to the resulting distances
+    """
+    for base in list(distances.keys()):
+        distances[base] += offset[base]
+
+    return distances
+
+
 def callback(data):
     global pub, tril
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
+    # distances = correct_dist(distances, offset)
+
     # trilateration solution
     sol = tril.solve(distances, method="lm")
     # rospy.loginfo(sol)
 
+    point3d = np.array([sol.x[i] for i in range(3)], dtype=np.float)
+    point3d = np.around(point3d, decimals=4)
+    rospy.loginfo(point3d)
+
     msg = Point32()
-    msg.x = round(float(sol.x[0]), 4)
-    msg.y = round(float(sol.x[1]), 4)
-    msg.z = round(float(sol.x[2]), 4)
+
+    msg.x = point3d[0]
+    msg.y = point3d[1]
+    msg.z = point3d[2]
+
     pub.publish(msg)
 
 
