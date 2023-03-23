@@ -12,9 +12,9 @@ count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
 bases_coord = {0: [0, 0, 0],
-               1: [2, 0, 0],
-               2: [0, 2, 0],
-               3: [2, 2, 0.2],
+               1: [1.45, 0, 0],
+               2: [0, 1.45, 0],
+               3: [1.45, 1.45, 0.28]
                }
 
 
@@ -26,7 +26,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     result = np.zeros([3, count_points])
     th = np.linspace(fx[0], fx[1], count_points)
     for i, v in enumerate(th):
-        result[0][i] = 0  # math.cos(v)
+        result[0][i] = math.cos(v)
         result[1][i] = 0
         result[2][i] = 0  # abs(math.cos(v))
     return result
