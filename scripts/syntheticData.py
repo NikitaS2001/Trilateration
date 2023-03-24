@@ -13,10 +13,10 @@ field_z = [0., 3]  # field dimensions z
 count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
-bases_coord = {0: [0, 0, 0],
-               1: [1.45, 1.45, 0.28],
-               2: [0, 1.45, 0],
-               3: [1.45, 0, 0]
+bases_coord = {0: [0, 0, 0.07],
+               1: [1.25, 1.25, 0.35],
+               2: [0, 1.25, 0.07],
+               3: [1.25, 0, 0.07]
                }
 
 

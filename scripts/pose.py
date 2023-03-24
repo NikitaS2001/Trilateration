@@ -11,9 +11,8 @@ from visualization_msgs.msg import Marker
 from dwm1000_msgs.msg import BeaconDataArray
 
 
-
 bases_coord = {0: [0, 0, 0.07],
-               1: [1.25, 1.25, 0.28+0.07],
+               1: [1.25, 1.25, 0.35],
                2: [0, 1.25, 0.07],
                3: [1.25, 0, 0.07]
                }
@@ -23,7 +22,6 @@ offset = {0: -0.3,
           2: -0.3,
           3: -0.3
           }
-
 
 
 class Trilateration:
@@ -127,6 +125,7 @@ class Trilateration:
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
 
+
 def correct_dist(distances: dict, offset: dict):
     """ Return dict
 
@@ -139,14 +138,11 @@ def correct_dist(distances: dict, offset: dict):
 
 
 def callback(data):
-    global pub, tril
+    global tril, pub
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
-    distances = correct_dist(distances, offset)
-
-    # trilateration solution
     sol = tril.solve(distances, method="lm")
     # rospy.loginfo(sol)
 
@@ -187,7 +183,7 @@ def main():
     tril = Trilateration(bases_coord, x0)
 
     pub = rospy.Publisher("dwm1000/point3d", Marker, queue_size=10)
-    rospy.init_node("trilateration", anonymous=True)
+    rospy.init_node("dwm1000_pose", anonymous=True)
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.spin()
 
