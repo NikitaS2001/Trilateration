@@ -11,6 +11,21 @@ from visualization_msgs.msg import Marker
 from dwm1000_msgs.msg import BeaconDataArray
 
 
+
+bases_coord = {0: [0, 0, 0.07],
+               1: [1.25, 1.25, 0.28+0.07],
+               2: [0, 1.25, 0.07],
+               3: [1.25, 0, 0.07]
+               }
+
+offset = {0: -0.3,
+          1: -0.3,
+          2: -0.3,
+          3: -0.3
+          }
+
+
+
 class Trilateration:
 
     """Solution of the trilateration problem
@@ -111,20 +126,6 @@ class Trilateration:
                 f[i] += math.pow(v[j]-(self.__bases_coord.get(base)[j]), 2)
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
-
-
-bases_coord = {0: [0, 0, 0],
-               1: [1.45, 1.45, 0.28],
-               2: [0, 1.45, 0],
-               3: [1.45, 0, 0]
-               }
-
-offset = {0: -0.3,
-          1: -0.3,
-          2: -0.3,
-          3: -0.3
-          }
-
 
 def correct_dist(distances: dict, offset: dict):
     """ Return dict
