@@ -9,12 +9,15 @@ from scipy.optimize import root
 from geometry_msgs.msg import Point32
 from visualization_msgs.msg import Marker
 from dwm1000_msgs.msg import BeaconDataArray
-
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Range
+from geometry_msgs.msg import PoseStamped
 
 bases_coord = {0: [0, 0, 0.07],
                1: [1.25, 1.25, 0.35],
                2: [0, 1.25, 0.07],
-               3: [1.25, 0, 0.07]
+               3: [1.25, 0, 0.07],
+               #4: [-1.25, 0, 0]
                }
 
 offset = {0: -0.3,
@@ -136,55 +139,86 @@ def correct_dist(distances: dict, offset: dict):
 
     return distances
 
+def range_callback(data):
+    global z_range
+
+    z_range = data.range
+
+
 
 def callback(data):
+<<<<<<< HEAD:scripts/localization.py
+    global pub, tril, z_range, pub_vpe
+=======
     global tril, pub
+>>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
+<<<<<<< HEAD:scripts/localization.py
+    # distances = correct_dist(distances, offset)
+
+    # trilateration solution
+=======
+>>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     sol = tril.solve(distances, method="lm")
-    # rospy.loginfo(sol)
+    rospy.loginfo(sol)
 
     point3d = np.array([sol.x[i] for i in range(3)], dtype=np.float)
     point3d = np.around(point3d, decimals=4)
     rospy.loginfo(point3d * 100)
 
-    msg = Marker()
-
+    msg = Odometry()
+    msg_vpe = PoseStamped()
     msg.header.frame_id = "base_link"
-    msg.header.stamp = rospy.Time()
-    msg.ns = "test"
-    msg.type = Marker.SPHERE
-    msg.action = Marker.ADD
-    msg.id = 0
-    msg.pose.position.x = point3d[0]
-    msg.pose.position.y = point3d[1]
-    msg.pose.position.z = point3d[2]
-    msg.pose.orientation.x = 0
-    msg.pose.orientation.y = 0
-    msg.pose.orientation.z = 0
-    msg.pose.orientation.w = 1
-    msg.scale.x = 0.05
-    msg.scale.y = 0.05
-    msg.scale.z = 0.05
-    msg.color.a = 1
-    msg.color.r = 1
-    msg.color.g = 0
-    msg.color.b = 0
+    msg.header.stamp = rospy.Time().now()
+    msg.pose.pose.position.x = point3d[0]
+    msg.pose.pose.position.y = point3d[1]
+    msg.pose.pose.position.z = z_range if z_range is not None else point3d[2]
+    msg.pose.pose.orientation.x = 0
+    msg.pose.pose.orientation.y = 0
+    msg.pose.pose.orientation.z = 0
+    msg.pose.pose.orientation.w = 1
+    msg.pose.covariance = [1, 0, 0, 0, 0, 0,
+                            0, 1, 0, 0, 0, 0,
+                            0, 0, 1, 0, 0, 0,
+                            0, 0, 0, 1, 0, 0,
+                            0, 0, 0, 0, 1, 0,
+                            0, 0, 0, 0, 0, 1]
+
+    #msg_vpe.header.frame_id = "base_link"
+    msg_vpe.header.stamp = rospy.Time().now()
+    msg_vpe.pose.position.x = point3d[0]
+    msg_vpe.pose.position.y = point3d[1]
+    msg_vpe.pose.position.z = z_range if z_range is not None else point3d[2]
+    #msg_vpe.pose.orientation.x = 0
+    #msg_vpe.pose.orientation.y = 0
+    #msg_vpe.pose.orientation.z = 0
+    #msg_vpe.pose.orientation.w = 1
 
     pub.publish(msg)
+    pub_vpe.publish(msg_vpe)
 
 
 def main():
-    global tril, pub
+    global tril, pub, z_range, pub_vpe
     # setting the starting position
-    x0 = np.zeros([len(list(bases_coord.values())[0])])
+    # x0 = np.zeros([len(list(bases_coord.values())[0])])
+    z_range = None
+    x0 = np.array([1.45/2, 1.45/2, 0.07])
     tril = Trilateration(bases_coord, x0)
 
+<<<<<<< HEAD:scripts/localization.py
+    pub = rospy.Publisher("dwm1000/odom_raw", Odometry, queue_size=10)
+    pub_vpe = rospy.Publisher("mavros/vision_pose/pose", PoseStamped, queue_size=10)
+    rospy.init_node("trilateration", anonymous=True)
+=======
     pub = rospy.Publisher("dwm1000/point3d", Marker, queue_size=10)
     rospy.init_node("dwm1000_pose", anonymous=True)
+>>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
+    rospy.Subscriber("rangefinder/range", Range, range_callback)
     rospy.spin()
 
 
