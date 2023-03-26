@@ -147,21 +147,14 @@ def range_callback(data):
 
 
 def callback(data):
-<<<<<<< HEAD:scripts/localization.py
     global pub, tril, z_range, pub_vpe
-=======
-    global tril, pub
->>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
-<<<<<<< HEAD:scripts/localization.py
     # distances = correct_dist(distances, offset)
 
     # trilateration solution
-=======
->>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     sol = tril.solve(distances, method="lm")
     rospy.loginfo(sol)
 
@@ -209,14 +202,9 @@ def main():
     x0 = np.array([1.45/2, 1.45/2, 0.07])
     tril = Trilateration(bases_coord, x0)
 
-<<<<<<< HEAD:scripts/localization.py
     pub = rospy.Publisher("dwm1000/odom_raw", Odometry, queue_size=10)
     pub_vpe = rospy.Publisher("mavros/vision_pose/pose", PoseStamped, queue_size=10)
     rospy.init_node("trilateration", anonymous=True)
-=======
-    pub = rospy.Publisher("dwm1000/point3d", Marker, queue_size=10)
-    rospy.init_node("dwm1000_pose", anonymous=True)
->>>>>>> 266b800180d06a3add1270b5e7dc2f718677d2f5:scripts/pose.py
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.Subscriber("rangefinder/range", Range, range_callback)
     rospy.spin()
