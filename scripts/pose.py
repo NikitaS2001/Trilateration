@@ -6,10 +6,7 @@ import math
 import numpy as np
 from scipy.optimize import root
 
-from geometry_msgs.msg import Point32
-from visualization_msgs.msg import Marker
 from dwm1000_msgs.msg import BeaconDataArray
-from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Range
 from geometry_msgs.msg import PoseStamped
 
@@ -147,7 +144,7 @@ def range_callback(data):
 
 
 def callback(data):
-    global pub, tril, z_range, pub_vpe
+    global pub, tril, z_range
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
@@ -156,54 +153,36 @@ def callback(data):
 
     # trilateration solution
     sol = tril.solve(distances, method="lm")
-    rospy.loginfo(sol)
+    # rospy.loginfo(sol)
 
     point3d = np.array([sol.x[i] for i in range(3)], dtype=np.float)
-    point3d = np.around(point3d, decimals=4)
+    # point3d = np.around(point3d, decimals=4)
     rospy.loginfo(point3d * 100)
-
-    msg = Odometry()
-    msg_vpe = PoseStamped()
-    msg.header.frame_id = "base_link"
-    msg.header.stamp = rospy.Time().now()
-    msg.pose.pose.position.x = point3d[0]
-    msg.pose.pose.position.y = point3d[1]
-    msg.pose.pose.position.z = z_range if z_range is not None else point3d[2]
-    msg.pose.pose.orientation.x = 0
-    msg.pose.pose.orientation.y = 0
-    msg.pose.pose.orientation.z = 0
-    msg.pose.pose.orientation.w = 1
-    msg.pose.covariance = [1, 0, 0, 0, 0, 0,
-                            0, 1, 0, 0, 0, 0,
-                            0, 0, 1, 0, 0, 0,
-                            0, 0, 0, 1, 0, 0,
-                            0, 0, 0, 0, 1, 0,
-                            0, 0, 0, 0, 0, 1]
+    
+    msg = PoseStamped()
 
     #msg_vpe.header.frame_id = "base_link"
-    msg_vpe.header.stamp = rospy.Time().now()
-    msg_vpe.pose.position.x = point3d[0]
-    msg_vpe.pose.position.y = point3d[1]
-    msg_vpe.pose.position.z = z_range if z_range is not None else point3d[2]
+    msg.header.stamp = rospy.Time().now()
+    msg.pose.position.x = point3d[0]
+    msg.pose.position.y = point3d[1]
+    msg.pose.position.z = z_range if z_range is not None else point3d[2]
     #msg_vpe.pose.orientation.x = 0
     #msg_vpe.pose.orientation.y = 0
     #msg_vpe.pose.orientation.z = 0
     #msg_vpe.pose.orientation.w = 1
 
     pub.publish(msg)
-    pub_vpe.publish(msg_vpe)
 
 
 def main():
-    global tril, pub, z_range, pub_vpe
+    global tril, pub, z_range
     # setting the starting position
-    # x0 = np.zeros([len(list(bases_coord.values())[0])])
+    x0 = np.zeros([len(list(bases_coord.values())[0])])
+    # x0 = np.array([1.45/2, 1.45/2, 0.07])
     z_range = None
-    x0 = np.array([1.45/2, 1.45/2, 0.07])
     tril = Trilateration(bases_coord, x0)
 
-    pub = rospy.Publisher("dwm1000/odom_raw", Odometry, queue_size=10)
-    pub_vpe = rospy.Publisher("mavros/vision_pose/pose", PoseStamped, queue_size=10)
+    pub = rospy.Publisher("mavros/vision_pose/pose", PoseStamped, queue_size=10)
     rospy.init_node("trilateration", anonymous=True)
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.Subscriber("rangefinder/range", Range, range_callback)
