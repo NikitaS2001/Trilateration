@@ -6,6 +6,7 @@ import rospy
 
 from dwm1000_msgs.msg import BeaconDataArray
 from dwm1000_msgs.msg import BeaconData
+from sensor_msgs.msg import Range
 
 field_x = [-3., 3.]  # field dimensions x
 field_y = [-3., 3.]  # field dimensions y
@@ -16,7 +17,8 @@ er_range = [-0.5, 0.5]  # error range
 bases_coord = {0: [0, 0, 0.07],
                1: [1.25, 1.25, 0.35],
                2: [0, 1.25, 0.07],
-               3: [1.25, 0, 0.07]
+               3: [1.25, 0, 0.07],
+               # 4: [-1.25, 0, 0]
                }
 
 
@@ -29,7 +31,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     th = np.linspace(fx[0], fx[1], count_points)
     for i, v in enumerate(th):
         result[0][i] = math.cos(v)
-        result[1][i] = 0
+        result[1][i] = math.sin(v)
         result[2][i] = 0  # abs(math.cos(v))
     return result
 
@@ -60,23 +62,29 @@ if __name__ == "__main__":
 
     pub = rospy.Publisher("dwm1000/beacon_data",
                           BeaconDataArray, queue_size=10)
+    pub_height = rospy.Publisher("rangefinder/range", Range, queue_size=10)
+
     rospy.init_node('dwm1000_test', anonymous=True)
-    rate = rospy.Rate(60)
+    rate = rospy.Rate(10)
 
     j = 0
 
     while not rospy.is_shutdown():
         pub_msg = BeaconDataArray()
         list_msg = list()
+        msg_height = Range()
 
         for i, key in enumerate(list(th_dist[j].keys())):
             msg = BeaconData()
             msg.id = int(key)
             msg.dist = float(th_dist[j].get(key))
             list_msg.append(msg)
-
+        msg_height.header.stamp = rospy.Time().now()
+        msg_height.header.frame_id = "map"
+        msg_height.range = th[2][j]
         pub_msg.beacons = list_msg
         pub.publish(pub_msg)
+        pub_height.publish(msg_height)
         list_msg.clear()
         j += 1
         j %= count_points
