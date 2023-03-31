@@ -164,6 +164,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/pose.py
   scripts/syntheticData.py
+  scripts/map.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
