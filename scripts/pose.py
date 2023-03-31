@@ -6,23 +6,25 @@ import math
 import numpy as np
 from scipy.optimize import root
 
+import tf2_ros
+import tf2_geometry_msgs
+
 from dwm1000_msgs.msg import BeaconDataArray
 from sensor_msgs.msg import Range
 from geometry_msgs.msg import PoseStamped
 
-bases_coord = {0: [0, 0, 0.07],
-               1: [1.25, 1.25, 0.35],
-               2: [0, 1.25, 0.07],
-               3: [1.25, 0, 0.07],
-               # 4: [-1.25, 0, 0]
+bases_coord = {0: [3, 0, 0.07],
+               1: [0, 3, 0.07],
+               2: [0, 0, 0.07+0.72],
+               3: [3, 3, 0.07]
+               #4: [-1.25, 0, 0]
                }
 
-offset = {0: -0.3,
-          1: -0.3,
-          2: -0.3,
-          3: -0.3
+offset = {0: -0.35,
+          1: -0.35,
+          2: -0.35,
+          3: -0.35
           }
-
 
 class Trilateration:
 
@@ -32,10 +34,11 @@ class Trilateration:
 
     __bases_coord: dict
     __base_dist: dict
-    __tolerance: float = 5e-3  # tolerance for termination
+    __tolerance: float = 5e-4  # tolerance for termination
     __iterMax: int = 20  # maximum number of iterations
     # previous solution (default value [0, 0, 0])
     __prev_sol: np.ndarray
+
 
     def __init__(self, base_coord: dict, prev_sol: np.ndarray = np.zeros([3])) -> None:
         self.__bases_coord = base_coord
@@ -136,55 +139,73 @@ def correct_dist(distances: dict, offset: dict):
 
     return distances
 
-
 def range_callback(data):
     global z_range
 
     z_range = data.range
 
 
+
 def callback(data):
-    global pub, tril, z_range
+    global pub, tril, z_range, tf_buffer, tf_listener
     distances = dict()
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
-    # distances = correct_dist(distances, offset)
+    distances = correct_dist(distances, offset)
 
     # trilateration solution
     sol = tril.solve(distances, method="lm")
-    rospy.loginfo(sol)
+    # rospy.loginfo(sol)
 
     point3d = np.array([sol.x[i] for i in range(3)], dtype=np.float)
     # point3d = np.around(point3d, decimals=4)
-    # rospy.loginfo(point3d)
-
+    rospy.loginfo(point3d * 100)
+    
     msg = PoseStamped()
 
-    msg.header.frame_id = "map"
+    msg.header.frame_id = "anchor_map"
     msg.header.stamp = rospy.Time().now()
     msg.pose.position.x = point3d[0]
     msg.pose.position.y = point3d[1]
     msg.pose.position.z = z_range if z_range is not None else point3d[2]
-    msg.pose.orientation.x = 0
-    msg.pose.orientation.y = 0
-    msg.pose.orientation.z = 0
-    msg.pose.orientation.w = 1
+    # msg.pose.orientation.x = 0
+    # msg.pose.orientation.y = 0
+    # msg.pose.orientation.z = 0
+    # msg.pose.orientation.w = 1
 
-    pub.publish(msg)
+    try:
+        transform = tf_buffer.lookup_transform(
+            "map",
+            msg.header.frame_id,
+            msg.header.stamp,
+            rospy.Duration(1.0))
 
+        msg = tf2_geometry_msgs.do_transform_pose(
+            msg,
+            transform)
+
+        pub.publish(msg)
+
+    except Exception as e:
+        print(f"Could not find transform to map! {e}")
 
 def main():
-    global tril, pub, z_range
+    rospy.init_node("trilateration", anonymous=True)
+
+    global tril, pub, z_range, tf_buffer, tf_listener
     # setting the starting position
     x0 = np.zeros([len(list(bases_coord.values())[0])])
     # x0 = np.array([1.45/2, 1.45/2, 0.07])
     z_range = None
     tril = Trilateration(bases_coord, x0)
 
-    pub = rospy.Publisher("mavros/vision_pose/pose",
-                          PoseStamped, queue_size=10)
-    rospy.init_node("trilateration", anonymous=True)
+
+    tf_buffer = tf2_ros.Buffer(rospy.Duration(100.0))
+    tf_listener = tf2_ros.TransformListener(tf_buffer)
+
+    pub = rospy.Publisher("mavros/vision_pose/pose", PoseStamped, queue_size=10)
+
     rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
     rospy.Subscriber("rangefinder/range", Range, range_callback)
     rospy.spin()

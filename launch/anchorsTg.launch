@@ -1,7 +1,9 @@
 <launch>
-   <node pkg="tf" type="static_transform_publisher" name="anchor0" args="0 0 0.07 0 0 0 1 map 1 100" />
-   <node pkg="tf" type="static_transform_publisher" name="anchor1" args="1.25 1.25 0.35 0 0 0 1 map 2 100" />
-   <node pkg="tf" type="static_transform_publisher" name="anchor2" args="0 1.25 0.07 0 0 0 1 map 3 100" />
-   <node pkg="tf" type="static_transform_publisher" name="anchor3" args="1.25 0 0.07 0 0 0 1 map 4 100" />
+   <node pkg="tf" type="static_transform_publisher" name="anchor0" args="3 0 0.07 0 0 0 1 anchor_map 0 100" />
+   <node pkg="tf" type="static_transform_publisher" name="anchor1" args="0 3 0.07 0 0 0 1 anchor_map 1 100" />
+   <node pkg="tf" type="static_transform_publisher" name="anchor2" args="0 0 0.79 0 0 0 1 anchor_map 2 100" />
+   <node pkg="tf" type="static_transform_publisher" name="anchor3" args="3 3 0.07 0 0 0 1 anchor_map 3 100" />
 
+   <!--<node pkg="tf" type="static_transform_publisher" name="anchor_map" args="0 0 0 0 0 -0.383 0.924 map anchor_map 100" /> -->
+   <node pkg="tf" type="static_transform_publisher" name="anchor_map" args="0 0 0 0 0 -0.383 0.924 map anchor_map 100" />
 </launch>
