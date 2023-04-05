@@ -14,13 +14,12 @@ field_z = [0., 3]  # field dimensions z
 count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
-bases_coord = {0: [0, 0, 0.07],
-               1: [1.25, 1.25, 0.35],
-               2: [0, 1.25, 0.07],
-               3: [1.25, 0, 0.07],
-               # 4: [-1.25, 0, 0]
+bases_coord = {0: [3, 0, 0.07],
+               1: [0, 3, 0.07],
+               2: [0, 0, 0.07+0.72],
+               3: [3, 3, 0.07]
+               #4: [-1.25, 0, 0]
                }
-
 
 def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     """ Return numpy.array
@@ -32,7 +31,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     for i, v in enumerate(th):
         result[0][i] = math.cos(v)
         result[1][i] = math.sin(v)
-        result[2][i] = 0  # abs(math.cos(v))
+        result[2][i] = abs(math.cos(v))
     return result
 
 
@@ -65,7 +64,7 @@ if __name__ == "__main__":
     pub_height = rospy.Publisher("rangefinder/range", Range, queue_size=10)
 
     rospy.init_node('dwm1000_test', anonymous=True)
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(60)
 
     j = 0
 

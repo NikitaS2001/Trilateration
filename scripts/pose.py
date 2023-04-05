@@ -152,14 +152,14 @@ def callback(data):
     for beacon in data.beacons:
         distances[beacon.id] = beacon.dist
 
-    distances = correct_dist(distances, offset)
+    # distances = correct_dist(distances, offset)
 
     # trilateration solution
     sol = tril.solve(distances, method="lm")
     # rospy.loginfo(sol)
 
-    point3d = np.array([sol.x[i] for i in range(3)], dtype=np.float)
-    # point3d = np.around(point3d, decimals=4)
+    point3d = np.array([sol.x[i] for i in range(3)])
+    point3d = np.around(point3d, decimals=4)
     rospy.loginfo(point3d * 100)
     
     msg = PoseStamped()
@@ -174,21 +174,23 @@ def callback(data):
     # msg.pose.orientation.z = 0
     # msg.pose.orientation.w = 1
 
-    try:
-        transform = tf_buffer.lookup_transform(
-            "map",
-            msg.header.frame_id,
-            msg.header.stamp,
-            rospy.Duration(1.0))
+    # try:
+    #     transform = tf_buffer.lookup_transform(
+    #         "map",
+    #         msg.header.frame_id,
+    #         msg.header.stamp,
+    #         rospy.Duration(1.0))
 
-        msg = tf2_geometry_msgs.do_transform_pose(
-            msg,
-            transform)
+    #     msg = tf2_geometry_msgs.do_transform_pose(
+    #         msg,
+    #         transform)
 
-        pub.publish(msg)
+    #     pub.publish(msg)
 
-    except Exception as e:
-        print(f"Could not find transform to map! {e}")
+    # except Exception as e:
+    #     print(f"Could not find transform to map! {e}")
+
+    pub.publish(msg)
 
 def main():
     rospy.init_node("trilateration", anonymous=True)
