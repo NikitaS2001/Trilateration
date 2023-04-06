@@ -1,31 +1,20 @@
 #!/usr/bin/python3
 
-from os import path
 import rospy
-from visualization_msgs.msg import MarkerArray
-from visualization_msgs.msg import Marker
-
-map_path = "/home/futureskills2/catkin_ws/src/dwm1000_pose/map/map.txt"
-
+import tf
 
 def main():
-    pub = rospy.Publisher("dwm1000/visualization/anchors",
-                          MarkerArray, queue_size=10)
-    rospy.init_node("visualization_anchors", anonymous=True)
-    rate = rospy.Rate(10)
-
-    msg = Marker()
-    pub_msg = MarkerArray()
-    f = open(path, "r")
-    for line in f:
-        print(line)
-    f.close()
-
+    map = rospy.get_param("/map")
+    rospy.init_node("anchor_map")
+    br = tf.TransformBroadcaster()
+    rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
-
-        pub.publish(pub_msg)
+        br.sendTransform((0.0, 0.0, 0.0),
+                         (0.0, 0.0, 0.0, 1.0),
+                         rospy.Time.now(),
+                         "anchor_map",
+                         "map")
         rate.sleep()
-
 
 if __name__ == "__main__":
     main()
