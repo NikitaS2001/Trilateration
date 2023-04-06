@@ -2,6 +2,6 @@
     <param name="map" value="$(find dwm1000_pose)/map/map.txt"/>
 
     <!-- dwm1000 map -->
-    <node pkg="dwm1000_pose" type="map.py" name="dwm1000_map" output="log">
+    <node pkg="dwm1000_pose" type="map.py" name="dwm1000_map" output="screen">
     </node>
 </launch>
