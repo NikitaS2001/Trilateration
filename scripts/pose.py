@@ -56,55 +56,36 @@ class Trilateration:
     def get_iterMax(self) -> int:
         return self.__iterMax
 
-    def solve(self, base_dist: dict, method="lm"):
+    def solve(self, base_dist: dict, method="3D"):
 
         self.__base_dist = base_dist
 
-        if method == "lm":
-            sol = self.__solvelm()
+        if method == "3D":
+            sol = self.__solvelm3D()
             self.__prev_sol = np.array(sol.x)
             return sol
-        elif method == "anderson":
-            sol = self.__solveanderson()
-            self.__prev_sol = np.array(sol.x)
-            return sol
-        elif method == "tsls":
-            sol = self.__solvetsls()
+        elif method == "2D":
+            sol = self.__solvelm3D()
             self.__prev_sol = np.array(sol.x)
             return sol
 
-    def __solvelm(self):
-        """ Return a OptimizeResult
 
-        Solves the system of non-linear equations in a least squares sense 
-        using a modification of the Levenberg-Marquardt algorithm
+    def __solvelm3D(self):
+        """ Return a OptimizeResult 3D (x, y, z)
+
+        Solves a system of nonlinear equations using the least squares method
+        using the Levenberg-Marquardt algorithm
         """
-        return root(self.__fun,
+        return root(self.__fun3D,
                     self.__prev_sol,
-                    jac=self.__jac,
+                    jac=self.__jac3D,
                     method="lm",
                     options={"col_deriv": False,
                              "xtol": self.__tolerance,
                              "maxiter": self.__iterMax}
                     )
 
-    def __solvetsls(self):
-        """ Return scipy.optimize.OptimizeResult
-
-        Solve a non-linear system using the TSLS+WD (two-step least squares) method
-        """
-        guess = self.__prev_sol
-        for iter in range(self.__iterMax):
-            jac, fun = self.__jac(guess), self.__fun(guess)
-            if math.sqrt(np.matmul(fun, fun) / len(guess)) < self.__tolerance:
-                return guess, iter
-            dguess = np.linalg.solve(jac, fun)
-            guess = guess - dguess
-
-    def __solveanderson(self):
-        return scipy.optimize.anderson(self.__fun, self.__prev_sol)
-
-    def __jac(self, v):
+    def __jac3D(self, v):
         """ Return function
         bases_coord
         Creation of the Jacobian matrix
@@ -116,7 +97,7 @@ class Trilateration:
                 f[i][j] = 2*(v[j]-self.__bases_coord.get(base)[j])
         return f
 
-    def __fun(self, v):
+    def __fun3D(self, v):
         """ Return function
 
         Creation of a system of nonlinear equations        
@@ -128,6 +109,34 @@ class Trilateration:
             f[i] -= math.pow(self.__base_dist.get(base), 2)
         return f
 
+    def __solvelm2D(self):
+        """ Return a OptimizeResult 2D (x, y)
+
+        Solves a system of nonlinear equations using the least squares method
+        using the Levenberg-Marquardt algorithm
+        """
+        return root(self.__fun2D,
+                    self.__prev_sol,
+                    jac=self.__jac2D,
+                    method="lm",
+                    options={"col_deriv": False,
+                             "xtol": self.__tolerance,
+                             "maxiter": self.__iterMax}
+                    )
+
+    def __jac2D(self, v):
+        """ Return function
+        bases_coord
+        Creation of the Jacobian matrix
+        """
+        pass
+
+    def __fun2D(self, v):
+        """ Return function
+
+        Creation of a system of nonlinear equations        
+        """
+        pass
 
 def correct_dist(distances: dict, offset: dict):
     """ Return dict
