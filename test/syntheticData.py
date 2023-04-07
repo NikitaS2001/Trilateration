@@ -31,7 +31,7 @@ def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     for i, v in enumerate(th):
         result[0][i] = math.cos(v)
         result[1][i] = math.sin(v)
-        result[2][i] = abs(math.cos(v))
+        result[2][i] = 0 #abs(math.cos(v))
     return result
 
 

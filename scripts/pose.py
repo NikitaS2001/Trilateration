@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import rospy
-import scipy
 import math
 import numpy as np
 from scipy.optimize import root
@@ -65,7 +64,7 @@ class Trilateration:
             self.__prev_sol = np.array(sol.x)
             return sol
         elif method == "2D":
-            sol = self.__solvelm3D()
+            sol = self.__solvelm2D()
             self.__prev_sol = np.array(sol.x)
             return sol
 
@@ -164,7 +163,7 @@ def callback(data):
     # distances = correct_dist(distances, offset)
 
     # trilateration solution
-    sol = tril.solve(distances, method="lm")
+    sol = tril.solve(distances, method="3D")
     # rospy.loginfo(sol)
 
     point3d = np.array([sol.x[i] for i in range(3)])
