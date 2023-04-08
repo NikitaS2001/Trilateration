@@ -8,12 +8,13 @@ from visualization_msgs.msg import MarkerArray
 
 
 def loadMap(path: str)-> dict:
-    bases_coord = dict()
+    bases_coord = {}
     with open(path, "r") as f:
         lines = f.readlines()
         for line_raw in lines[1:]:
             line = line_raw.split()
             bases_coord[line[0]] = [float(i) for i in line[1:]]
+    rospy.set_param("/bases_coord", bases_coord)
     return bases_coord
 
 def sendTf_anchor(bases_coord: dict,

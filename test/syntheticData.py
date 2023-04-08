@@ -14,12 +14,12 @@ field_z = [0., 3]  # field dimensions z
 count_points = 300  # amount of points
 er_range = [-0.5, 0.5]  # error range
 
-bases_coord = {0: [3, 0, 0.07],
-               1: [0, 3, 0.07],
-               2: [0, 0, 0.07+0.72],
-               3: [3, 3, 0.07]
-               #4: [-1.25, 0, 0]
-               }
+# bases_coord = {0: [3, 0, 0.07],
+#                1: [0, 3, 0.07],
+#                2: [0, 0, 0.07+0.72],
+#                3: [3, 3, 0.07]
+#                #4: [-1.25, 0, 0]
+#                }
 
 def get_th_points(fx: list, fy: list, fz: list) -> np.array:
     """ Return numpy.array
@@ -56,6 +56,7 @@ def dist(bases_coord: list, x: float, y: float, z: float = 0) -> dict:
 
 
 if __name__ == "__main__":
+    bases_coord = rospy.get_param("/bases_coord")
     th = get_th_points(field_x, field_y, field_z)
     th_dist = get_th_dist(bases_coord, th)
 

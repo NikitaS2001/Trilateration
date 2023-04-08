@@ -137,6 +137,9 @@ class Trilateration:
         """
         pass
 
+def load_map():
+    return rospy.get_param("/bases_coord")
+
 def correct_dist(distances: dict, offset: dict):
     """ Return dict
 
@@ -205,9 +208,10 @@ def main():
 
     global tril, pub, z_range, tf_buffer, tf_listener
     # setting the starting position
-    x0 = np.zeros([len(list(bases_coord.values())[0])])
+    x0 = np.zeros([3])
     # x0 = np.array([1.45/2, 1.45/2, 0.07])
     z_range = None
+    # bases_coord = load_map()
     tril = Trilateration(bases_coord, x0)
 
 
