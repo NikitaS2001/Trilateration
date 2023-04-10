@@ -74,17 +74,17 @@ class Trilateration:
 
         sol = self.solve(distances, method="3D")
 
-        point3D = np.array([sol.x[i] for i in range(3)])
-        point3D = np.around(point3D, decimals=4)
+        point = np.array([sol.x[i] for i in range(3)])
+        point = np.around(point, decimals=4)
 
-        rospy.loginfo(point3D * 100)
+        rospy.loginfo(point * 100)
 
         msg = PoseStamped()
         msg.header.frame_id = "anchor_map"
         msg.header.stamp = rospy.Time().now()
-        msg.pose.position.x = point3D[0]
-        msg.pose.position.y = point3D[1]
-        msg.pose.position.z = self.__height if self.__height is not None else point3D[2]
+        msg.pose.position.x = point[0]
+        msg.pose.position.y = point[1]
+        msg.pose.position.z = self.__height if self.__height is not None else point[2]
 
         self.__pub.publish(msg)
 
@@ -131,7 +131,7 @@ class Trilateration:
     def __fun3D(self, v):
         """ Return function
 
-        Creation of a system of nonlinear equations        
+        Creation of a system of nonlinear equations
         """
         f = np.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
@@ -161,14 +161,26 @@ class Trilateration:
         bases_coord
         Creation of the Jacobian matrix
         """
-        pass
+        f = np.zeros([len(self.__base_dist.keys()), 2])
+        for i, base in enumerate(list(self.__base_dist.keys())):
+            for j in range(3):
+                f[i][j] = 2*(v[j]-self.__bases_coord.get(str(base))[j])
+        return f
 
     def __fun2D(self, v):
         """ Return function
 
-        Creation of a system of nonlinear equations        
+        Creation of a system of nonlinear equations
         """
-        pass
+        f = np.zeros([len(self.__base_dist)])
+        for i, base in enumerate(list(self.__base_dist.keys())):
+            for j in range(3):
+                f[i] += math.pow(v[j] -
+                                 (self.__bases_coord.get(str(base))[j]), 2)
+            f[i] += math.pow(self.__height -
+                             (self.__bases_coord.get(str(base))[j]), 2)
+            f[i] -= math.pow(self.__base_dist.get(base), 2)
+        return f
 
 
 def main():
@@ -176,6 +188,7 @@ def main():
     bases_coord = rospy.get_param("/bases_coord")
 
     x0 = np.zeros([len(list(bases_coord.values())[0])])
+    # x0 = np.zeros([2])
     tril = Trilateration(bases_coord, x0)
     rospy.spin()
 
