@@ -163,9 +163,9 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   scripts/pose.py
+  scripts/map.py
   test/syntheticData.py
   test/pubRangeBeacon.py
-  scripts/map.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

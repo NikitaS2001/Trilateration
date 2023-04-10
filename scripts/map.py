@@ -7,14 +7,18 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
 
-def loadMap(path: str)-> dict:
-    bases_coord = dict()
+def loadMap(path: str) -> dict:
+    bases_coord = {}
+    bases_coord_param = {}
     with open(path, "r") as f:
         lines = f.readlines()
         for line_raw in lines[1:]:
             line = line_raw.split()
             bases_coord[line[0]] = [float(i) for i in line[1:]]
+            bases_coord_param[line[0]] = [float(i) for i in line[1:5]]
+    rospy.set_param("/bases_coord", bases_coord_param)
     return bases_coord
+
 
 def sendTf_anchor(bases_coord: dict,
                   Broadcaster: tf.TransformBroadcaster) -> list:
@@ -25,12 +29,14 @@ def sendTf_anchor(bases_coord: dict,
                                   "anchor"+base,
                                   "anchor_map")
 
+
 def sendTf_map(Broadcaster: tf.TransformBroadcaster):
     Broadcaster.sendTransform((0.0, 0.0, 0.0),
-                         quaternion_from_euler(0, 0, 0, axes="rxyz"),
-                         rospy.Time.now(),
-                         "anchor_map",
-                         "map")
+                              quaternion_from_euler(0, 0, 0, axes="rxyz"),
+                              rospy.Time.now(),
+                              "anchor_map",
+                              "map")
+
 
 def msg_marker(bases_coord: dict) -> list:
     array = []
@@ -57,14 +63,16 @@ def msg_marker(bases_coord: dict) -> list:
         msg.scale.x = 0.3
         msg.scale.y = 0.3
         msg.scale.z = 0.1
-        
+
         array.append(msg)
     return array
+
 
 def main():
     path_map = rospy.get_param("/map")
 
-    pub = rospy.Publisher("/dwm1000/visualization_anchor", MarkerArray, queue_size=10)
+    pub = rospy.Publisher("/dwm1000/visualization_anchor",
+                          MarkerArray, queue_size=10)
     rospy.init_node("anchor_map")
     pub_msg = MarkerArray()
     coord = loadMap(path_map)
@@ -73,11 +81,16 @@ def main():
 
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(10.0)
+
     while not rospy.is_shutdown():
         sendTf_map(br)
         sendTf_anchor(coord, br)
         pub.publish(pub_msg)
         rate.sleep()
+    else:
+        rospy.delete_param("/map")
+        rospy.delete_param("/bases_coord")
+
 
 if __name__ == "__main__":
     main()
