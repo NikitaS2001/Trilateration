@@ -184,7 +184,12 @@ class Trilateration:
 
 
 def main():
-    bases_coord = rospy.get_param("/bases_coord")
+    bases_coord = None
+    while not bool(bases_coord):
+        try:
+            bases_coord = rospy.get_param("/bases_coord")
+        except:
+            pass
 
     x0 = np.zeros([len(list(bases_coord.values())[0])])
     # x0 = np.zeros([2])
