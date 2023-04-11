@@ -118,13 +118,13 @@ class Trilateration:
 
     def __jac3D(self, v):
         """ Return function
-        bases_coord
+
         Creation of the Jacobian matrix
         """
         f = np.zeros([len(self.__base_dist.keys()), len(
             list(self.__bases_coord.values())[0])])
         for i, base in enumerate(list(self.__base_dist.keys())):
-            for j in range(len(list(self.__bases_coord.values())[0])):
+            for j in range(4):
                 f[i][j] = 2*(v[j]-self.__bases_coord.get(str(base))[j])
         return f
 
@@ -135,7 +135,7 @@ class Trilateration:
         """
         f = np.zeros([len(self.__base_dist)])
         for i, base in enumerate(list(self.__base_dist.keys())):
-            for j in range(len(list(self.__bases_coord.values())[0])):
+            for j in range(4):
                 f[i] += math.pow(v[j] -
                                  (self.__bases_coord.get(str(base))[j]), 2)
             f[i] -= math.pow(self.__base_dist.get(base), 2)
@@ -184,7 +184,6 @@ class Trilateration:
 
 
 def main():
-
     bases_coord = rospy.get_param("/bases_coord")
 
     x0 = np.zeros([len(list(bases_coord.values())[0])])
