@@ -39,10 +39,8 @@ def main():
 
     rospy.init_node("pub_range_beacon", anonymous=True)
 
-    while not rospy.is_shutdown():
-
-        rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
-        rospy.spin()
+    rospy.Subscriber("dwm1000/beacon_data", BeaconDataArray, callback)
+    rospy.spin()
 
 
 if __name__ == "__main__":

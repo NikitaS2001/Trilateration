@@ -164,6 +164,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/pose.py
   scripts/map.py
+  scripts/filter.py
   test/syntheticData.py
   test/pubRangeBeacon.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
