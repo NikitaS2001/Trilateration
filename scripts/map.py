@@ -7,7 +7,7 @@ from visualization_msgs.msg import Marker
 from visualization_msgs.msg import MarkerArray
 
 
-def loadMap(path: str) -> dict:
+def load_map(path: str) -> dict:
     bases_coord = {}
     bases_coord_param = {}
     with open(path, "r") as f:
@@ -20,8 +20,8 @@ def loadMap(path: str) -> dict:
     return bases_coord
 
 
-def sendTf_anchor(bases_coord: dict,
-                  Broadcaster: tf.TransformBroadcaster) -> list:
+def send_tf_anchors(bases_coord: dict,
+                    Broadcaster: tf.TransformBroadcaster) -> list:
     for base in bases_coord.keys():
         Broadcaster.sendTransform((bases_coord[base][0], bases_coord[base][1], bases_coord[base][2]),
                                   quaternion_from_euler(0, 0, 0, axes="rxyz"),
@@ -30,7 +30,7 @@ def sendTf_anchor(bases_coord: dict,
                                   "anchor_map")
 
 
-def sendTf_map(Broadcaster: tf.TransformBroadcaster):
+def send_tf_map(Broadcaster: tf.TransformBroadcaster):
     Broadcaster.sendTransform((0.0, 0.0, 0.0),
                               quaternion_from_euler(0, 0, 0, axes="rxyz"),
                               rospy.Time.now(),
@@ -38,7 +38,7 @@ def sendTf_map(Broadcaster: tf.TransformBroadcaster):
                               "map")
 
 
-def msg_marker(bases_coord: dict) -> list:
+def msg_markers(bases_coord: dict) -> list:
     array = []
     for base in bases_coord.keys():
         msg = Marker()
@@ -75,16 +75,16 @@ def main():
                           MarkerArray, queue_size=10)
     rospy.init_node("anchor_map")
     pub_msg = MarkerArray()
-    coord = loadMap(path_map)
-    msg_list = msg_marker(coord)
+    coord = load_map(path_map)
+    msg_list = msg_markers(coord)
     pub_msg.markers = msg_list
 
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(10.0)
 
     while not rospy.is_shutdown():
-        sendTf_map(br)
-        sendTf_anchor(coord, br)
+        send_tf_map(br)
+        send_tf_anchors(coord, br)
         pub.publish(pub_msg)
         rate.sleep()
     else:
