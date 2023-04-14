@@ -8,13 +8,15 @@ from dwm1000_msgs.msg import BeaconData
 
 
 def callback(data):
-    global pub, msg_list, distances_raw
+    global pub, msg_list, distances_raw, beacons_zi, b, a
+    distances = {}
     for beacon in data.beacons:
         distances_raw[beacon.id] = beacon.dist
 
-    distances = distances_raw
-
     "filter"
+    for key in list(distances_raw.keys()):
+        distances[key], beacons_zi[str(key)] = signal.lfilter(
+            b, a, [distances_raw.get(key)], zi=beacons_zi[str(key)])
 
     pub_msg = BeaconDataArray()
     for key in list(distances.keys()):
@@ -29,15 +31,17 @@ def callback(data):
 
 
 if __name__ == "__main__":
-    global pub, msg_list, distances_raw
+    global pub, msg_list, distances_raw, beacons, b, a
 
     rospy.init_node("filter", anonymous=True)
 
+    beacons = rospy.get_param("/bases_coord")
+    beacons_zi = {}
     msg_list = []
     distances_raw = {}
-    a, b = signal.butter(3, 2*1.25/5)
-    filter = signal.filtfilt(a, b)
-    buffer = np.zeros([5])
+    b, a = signal.butter(25, 0.1)
+    for key in list(beacons.keys()):
+        beacons_zi[key] = signal.lfilter_zi(b, 1)
 
     pub = rospy.Publisher("dwm1000/beacon_data_filter",
                           BeaconDataArray, queue_size=10)
