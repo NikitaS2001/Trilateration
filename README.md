@@ -38,7 +38,7 @@ roslaunch dwm1000_pose sample.launch
 Файл карты имеет один маркер на строку со следующим форматом строки:
 
 ```
-marker_id marker_length x y z yaw pitch roll
+marker_id x y z yaw pitch roll
 ```
 
 ### Топики
