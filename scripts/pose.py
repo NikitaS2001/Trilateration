@@ -9,13 +9,6 @@ from dwm1000_msgs.msg import BeaconDataArray
 from sensor_msgs.msg import Range
 from geometry_msgs.msg import PoseStamped
 
-offset = {0: -0.35,
-          1: -0.35,
-          2: -0.35,
-          3: -0.35
-          }
-
-
 class Trilateration:
 
     """Solution of the trilateration problem
@@ -29,11 +22,11 @@ class Trilateration:
     # previous solution (default value [0, 0, 0])
     __prev_sol: np.ndarray
     __height: float = None
-    __offset: dict = {}
 
-    def __init__(self, base_coord: dict, prev_sol: np.ndarray = np.zeros([3])) -> None:
+    def __init__(self, base_coord: dict, prev_sol: np.ndarray = np.zeros([3]), offset: dict = None ) -> None:
         self.__bases_coord = base_coord
         self.__prev_sol = prev_sol
+        self.__offset = offset
 
         # initialization node
         rospy.init_node("trilateration", anonymous=True)
@@ -67,10 +60,25 @@ class Trilateration:
     def __height_callback(self, data):
         self.__height = data.range
 
+    def __correct_dist(self, distances: dict):
+        """ Return dict
+
+        adding offset to the resulting distances
+        """
+
+        for base in list(distances.keys()):
+            distances[base] += self.__offset[base]
+
+        return distances
+
     def __callback(self, data):
         distances = {}
         for beacon in data.beacons:
             distances[beacon.id] = beacon.dist
+
+        # adding offset to the resulting distances
+        if offset != None:
+            distances = self.__correct_dist(distances)
 
         sol = self.solve(distances, method="3D")
 
@@ -184,6 +192,13 @@ class Trilateration:
 
 
 def main():
+
+    offset = {0: -0.35,
+            1: -0.35,
+            2: -0.35,
+            3: -0.35
+            }
+
     bases_coord = None
     while not bool(bases_coord):
         try:
