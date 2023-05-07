@@ -52,6 +52,7 @@ def dist(bases_coord: list, x: float, y: float, z: float = 0) -> dict:
 
 
 if __name__ == "__main__":
+    bases_coord = rospy.get_param("/bases_coord")
     th = get_th_points(field_x, field_y, field_z)
     th_dist = get_th_dist(bases_coord, th)
 

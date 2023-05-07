@@ -83,7 +83,7 @@ class Trilateration:
         sol = self.solve(distances, method="3D")
 
         point = np.array([sol.x[i] for i in range(3)])
-        point = np.around(point, decimals=4)
+        point = np.around(point, decimals=3)
 
         rospy.loginfo(point * 100)
 
