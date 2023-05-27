@@ -54,7 +54,11 @@ def msg_markers(bases_coord: dict) -> list:
                                            aj=bases_coord[base][4],
                                            ak=bases_coord[base][5],
                                            axes='rzyx')
-        msg.pose.orientation = *quaternion
+
+        msg.pose.orientation.x = quaternion[0]
+        msg.pose.orientation.y = quaternion[1]
+        msg.pose.orientation.z = quaternion[2]
+        msg.pose.orientation.w = quaternion[3]
         msg.color.a = 1.0
 
         msg.scale.x = 0.3
